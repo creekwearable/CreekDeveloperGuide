@@ -25,7 +25,7 @@ Creek SDK 开发者文档门户，包含公开文档阅读站和 Markdown 内容
     version: v2.0
     ---
 
-后台新建文档时会同时生成中英文文件，并可在“中文 / English”之间切换编辑。站点构建时会自动发现 `content` 目录中的 Markdown 文件。后台中的“下载 .md”可以生成标准文件；连接 GitHub 后，“发布”操作可进一步改为提交到仓库。
+站点构建时会自动发现 `content` 目录中的 Markdown 文件。内部人员直接在 GitHub 中新增或编辑对应的 Markdown 文件，提交到 `main` 分支后，GitHub Pages 会自动重新发布公开文档。
 
 ## 页面
 
@@ -42,4 +42,13 @@ Creek SDK 开发者文档门户，包含公开文档阅读站和 Markdown 内容
 
 ## 发布
 
-项目支持将 GitHub 作为内容和版本仓库。公开站和管理后台需要部署到支持应用运行时的平台；如果只保留纯静态公开文档，也可以另行生成 GitHub Pages 版本。
+公开文档使用 GitHub Pages，发布地址为：
+
+- https://creekwearable.github.io/CreekDeveloperGuide/
+
+GitHub Actions 会在 `main` 分支内容更新后自动执行 `npm run build:pages` 并发布 `pages-dist`。本地可使用以下命令检查静态版本：
+
+    npm run build:pages
+    npm run preview:pages
+
+`/admin` 后台不会包含在 GitHub Pages 中；内部编辑入口就是 GitHub 仓库本身。
