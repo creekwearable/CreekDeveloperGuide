@@ -1,13 +1,16 @@
 import { sites } from '@openai/sites-vite-plugin';
 import tailwindcss from '@tailwindcss/postcss';
 import vinext from 'vinext';
+import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import hostingConfig from './.openai/hosting.json';
+import { publishedDocsPlugin } from './scripts/published-docs-plugin';
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   '00000000-0000-4000-8000-000000000000';
 
 const { d1, r2 } = hostingConfig;
+const contentRoot = fileURLToPath(new URL('./content', import.meta.url));
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === 'seatbelt';
@@ -50,6 +53,7 @@ export default defineConfig(async () => {
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,
     plugins: [
+      publishedDocsPlugin(contentRoot),
       vinext(),
       sites(),
       cloudflare({
