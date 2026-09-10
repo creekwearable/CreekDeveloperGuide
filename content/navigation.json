@@ -1,0 +1,12 @@
+{
+  "sections": [
+    { "id": "overview", "zh-CN": "概览", "en-US": "Overview", "order": 1 },
+    { "id": "quick-start", "zh-CN": "快速开始", "en-US": "Quick Start", "order": 2 },
+    { "id": "android", "zh-CN": "Android", "en-US": "Android", "order": 3 },
+    { "id": "ios", "zh-CN": "iOS", "en-US": "iOS", "order": 4 },
+    { "id": "flutter", "zh-CN": "Flutter", "en-US": "Flutter", "order": 5 },
+    { "id": "harmonyos", "zh-CN": "HarmonyOS", "en-US": "HarmonyOS", "order": 6 },
+    { "id": "features", "zh-CN": "功能指南", "en-US": "Feature Guides", "order": 7 },
+    { "id": "api", "zh-CN": "API 参考", "en-US": "API Reference", "order": 8 }
+  ]
+}
