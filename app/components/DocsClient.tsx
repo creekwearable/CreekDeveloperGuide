@@ -33,23 +33,39 @@ const copy = {
   },
 } as const;
 
-export function DocsClient({ locale }: { locale: 'zh-CN' | 'en-US' }) {
+type DocsClientProps = {
+  locale: 'zh-CN' | 'en-US';
+  staticBasePath?: string;
+};
+
+export function DocsClient({ locale, staticBasePath }: DocsClientProps) {
   const docs = useMemo(
     () => allDocs.filter((doc) => doc.locale === locale && doc.status === 'published'),
     [locale]
   );
-  const [current, setCurrent] = useState<DocRecord>(docs[0]);
+  const overview = docs.find((doc) => doc.platform === 'Overview') ?? docs[0];
+  const [current, setCurrent] = useState<DocRecord>(overview);
   const [copied, setCopied] = useState(false);
   const labels = copy[locale];
-  const overview = docs.find((doc) => doc.platform === 'Overview') ?? docs[0];
   const otherLocale = locale === 'zh-CN' ? 'en-US' : 'zh-CN';
   const otherLanguage = locale === 'zh-CN' ? 'English' : '中文';
+
+  function docsHref(targetLocale: 'zh-CN' | 'en-US', platform: string) {
+    const params = new URLSearchParams({ platform });
+    if (staticBasePath !== undefined) {
+      params.set('lang', targetLocale);
+      return `${staticBasePath}/?${params.toString()}`;
+    }
+    return `/${targetLocale}/docs?${params.toString()}`;
+  }
 
   useEffect(() => {
     const platform = new URLSearchParams(window.location.search).get('platform');
     const match = docs.find((doc) => doc.platform.toLowerCase() === platform?.toLowerCase());
-    setCurrent(match ?? docs[0]);
-  }, [docs]);
+    // Hydration starts from the overview; synchronize the selected query after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrent(match ?? overview);
+  }, [docs, overview]);
 
   const sections = useMemo(
     () => current.source.split('\n').filter((line) => line.startsWith('## ')).map((line) => line.slice(3)),
@@ -58,7 +74,7 @@ export function DocsClient({ locale }: { locale: 'zh-CN' | 'en-US' }) {
 
   function choose(doc: DocRecord) {
     setCurrent(doc);
-    window.history.replaceState(null, '', '/' + locale + '/docs?platform=' + encodeURIComponent(doc.platform));
+    window.history.replaceState(null, '', docsHref(locale, doc.platform));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -71,19 +87,19 @@ export function DocsClient({ locale }: { locale: 'zh-CN' | 'en-US' }) {
   return (
     <main className="reader-shell">
       <header className="topbar reader-topbar">
-        <a className="brand" href={'/' + locale + '/docs?platform=Overview'}><span className="brand-mark">C</span><span>Creek Developer</span></a>
+        <a className="brand" href={docsHref(locale, 'Overview')}><span className="brand-mark">C</span><span>Creek Developer</span></a>
         <button className="search" type="button"><span className="search-icon">⌕</span><span>{labels.search}</span><kbd>⌘ K</kbd></button>
         <nav className="top-actions">
           <button type="button">v2.0 ⌄</button>
-          <a className="language-switch" href={'/' + otherLocale + '/docs?platform=' + encodeURIComponent(current.platform)}>
+          <a className="language-switch" href={docsHref(otherLocale, current.platform)}>
             {labels.language} · {otherLanguage}
           </a>
-          <a href="#github">GitHub ↗</a>
+          <a href="https://github.com/creekwearable/CreekDeveloperGuide">GitHub ↗</a>
         </nav>
       </header>
       <aside className="reader-sidebar">
         <div className="sidebar-title"><span>▣</span> {labels.guide}</div>
-        <a className={'reader-home ' + (current.platform === 'Overview' ? 'active' : '')} href={'/' + locale + '/docs?platform=Overview'} onClick={(event) => { event.preventDefault(); choose(overview); }}>⌂　{labels.overview}</a>
+        <a className={'reader-home ' + (current.platform === 'Overview' ? 'active' : '')} href={docsHref(locale, 'Overview')} onClick={(event) => { event.preventDefault(); choose(overview); }}>⌂　{labels.overview}</a>
         {['Android', 'iOS', 'Flutter', 'HarmonyOS'].map((platform) => (
           <div className="reader-group" key={platform}>
             <b>{platform}</b>
@@ -98,7 +114,7 @@ export function DocsClient({ locale }: { locale: 'zh-CN' | 'en-US' }) {
         ))}
       </aside>
       <section className="reader-main">
-        <div className="breadcrumb"><a href={'/' + locale + '/docs?platform=Overview'}>{labels.docs}</a><span>/</span><span>{current.platform}</span><span>/</span><b>{current.title}</b></div>
+        <div className="breadcrumb"><a href={docsHref(locale, 'Overview')}>{labels.docs}</a><span>/</span><span>{current.platform}</span><span>/</span><b>{current.title}</b></div>
         <div className="reader-meta">
           <span className="version-tag">{current.version}</span>
           <span>{labels.updated}</span>
@@ -107,7 +123,7 @@ export function DocsClient({ locale }: { locale: 'zh-CN' | 'en-US' }) {
         </div>
         <MarkdownView source={current.source} />
         <div className="doc-feedback"><div><b>{labels.helpful}</b><span>{labels.feedback}</span></div><button type="button">{labels.yes}</button><button type="button">{labels.improve}</button></div>
-        <div className="doc-pagination"><a href={'/' + locale + '/docs?platform=Overview'} onClick={(event) => { event.preventDefault(); choose(overview); }}>{labels.back}</a><a href="#next"><span>{labels.next}</span><b>{labels.nextDoc}</b></a></div>
+        <div className="doc-pagination"><a href={docsHref(locale, 'Overview')} onClick={(event) => { event.preventDefault(); choose(overview); }}>{labels.back}</a><a href="#next"><span>{labels.next}</span><b>{labels.nextDoc}</b></a></div>
       </section>
       <aside className="reader-toc">
         <b>{labels.onPage}</b>
