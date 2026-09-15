@@ -4,7 +4,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '../app/globals.css';
 import { DocsReader } from '../app/components/DocsReader';
-import { parseDoc } from '../app/lib/docs';
+import { parseDoc, type DocsNavigation } from '../app/lib/docs';
+import navigation from '../content/navigation.json';
 import publishedSources from 'virtual:published-docs';
 
 const params = new URLSearchParams(window.location.search);
@@ -16,6 +17,11 @@ document.documentElement.lang = locale;
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <DocsReader allDocs={publishedDocs} locale={locale} staticBasePath={staticBasePath} />
+    <DocsReader
+      allDocs={publishedDocs}
+      locale={locale}
+      navigation={navigation as DocsNavigation}
+      staticBasePath={staticBasePath}
+    />
   </StrictMode>
 );

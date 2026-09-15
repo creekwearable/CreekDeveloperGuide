@@ -1,8 +1,8 @@
 ---
 docId: flutter-getting-started
 locale: en-US
-title: Flutter Quick Start
-description: Integrate the Creek SDK into a Flutter application.
+title: "Flutter Initialization"
+description: "Configure and initialize the Creek Flutter SDK."
 platform: Flutter
 slug: flutter/getting-started
 order: 1
@@ -10,23 +10,12 @@ status: published
 version: v2.0
 ---
 
-# Flutter Quick Start
+# Flutter Initialization
 
-The Creek Flutter plugin provides one Dart API over the native Android and iOS SDKs.
+Configure and initialize the Creek Flutter SDK.
 
-## Install the plugin
+## SDK Usage
 
-    dependencies:
-      creek_sdk: ^2.0.0
-
-## Initialize
-
-    await CreekSdk.initialize(
-      appId: 'YOUR_APP_ID',
-      apiKey: 'YOUR_API_KEY',
-    );
-
-## Platform setup
-
-- Declare Bluetooth permissions in the Android project.
-- Add the Bluetooth usage description to the iOS project.
+```dart
+sdkManager.initSDK();
+```

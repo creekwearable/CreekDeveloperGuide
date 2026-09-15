@@ -2,7 +2,7 @@
 docId: android-getting-started
 locale: en-US
 title: Android Quick Start
-description: Install and initialize the Creek SDK in an Android project.
+description: Register and initialize the Android Creek SDK, then verify device authorization when using a custom connection flow.
 platform: Android
 slug: android/getting-started
 order: 1
@@ -12,34 +12,19 @@ version: v2.0
 
 # Android Quick Start
 
-This guide walks you through installing and initializing the Creek SDK in an Android project.
+Register and initialize the Android Creek SDK, then verify device authorization when using a custom connection flow.
 
-## Requirements
+```kotlin
+CreekManager.sInstance.creekRegister(this, completed = {
 
-- Android Studio Ladybug or later
-- Kotlin 1.9+
-- Android minSdk 21+
+  CreekManager.sInstance.initSDK()
+})
 
-## Install the SDK
-
-Add the Creek SDK dependency to your project:
-
-    dependencies {
-        implementation("com.creek:sdk:2.0.0")
-    }
-
-## Initialize
-
-Initialize the SDK in Application.onCreate:
-
-    Creek.init(
-        context = this,
-        appId = "YOUR_APP_ID",
-        apiKey = "YOUR_API_KEY"
-    )
-
-> Never commit production credentials to a client repository.
-
-## Next steps
-
-Continue with the device connection and data synchronization guides.
+CreekManager.sInstance.authorizationVerificationDevice(success = {
+    responseText.value = "Success"
+}, failure = {
+    responseText.value = "Failure"
+}, authorizationFailure = {
+    responseText.value = "authorizationFailure"
+})
+```

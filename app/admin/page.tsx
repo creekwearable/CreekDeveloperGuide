@@ -1,8 +1,15 @@
 'use client';
 
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { MarkdownView } from '../components/MarkdownView';
-import { createDocSource, DocRecord, parseDoc } from '../lib/docs';
+import { createDocSource, DocRecord, DocsNavigation, parseDoc } from '../lib/docs';
+import navigationConfig from '../../content/navigation.json';
+
+const navigation = navigationConfig as DocsNavigation;
+const platforms = [...navigation.platforms].sort((a, b) => a.order - b.order);
+const treePlatforms = ['Overview', ...platforms.map((platform) => platform.id)];
+const platformRank = new Map(treePlatforms.map((platform, index) => [platform, index]));
 
 const rawModules = import.meta.glob('../../content/**/*.md', {
   eager: true,
@@ -12,7 +19,9 @@ const rawModules = import.meta.glob('../../content/**/*.md', {
 
 const initialDocs = Object.entries(rawModules)
   .map(([path, source]) => parseDoc(path, source))
-  .sort((a, b) => Number(b.locale === 'zh-CN') - Number(a.locale === 'zh-CN') || a.platform.localeCompare(b.platform) || a.order - b.order);
+  .sort((a, b) => Number(b.locale === 'zh-CN') - Number(a.locale === 'zh-CN')
+    || (platformRank.get(a.platform) ?? 99) - (platformRank.get(b.platform) ?? 99)
+    || a.order - b.order);
 
 const firstChineseDoc = initialDocs.find((doc) => doc.locale === 'zh-CN') ?? initialDocs[0];
 
@@ -133,11 +142,11 @@ export default function AdminPage() {
   return (
     <main className="admin-shell">
       <header className="admin-topbar">
-        <a className="brand" href="/"><span className="brand-mark">C</span><span>Creek Developer</span></a>
+        <Link className="brand" href="/"><span className="brand-mark">C</span><span>Creek Developer</span></Link>
         <span className="admin-label">内容管理后台</span>
         <div className="admin-top-actions">
           <span className="sync-state"><i /> GitHub 待连接</span>
-          <a href="/">查看网站 ↗</a>
+          <Link href="/">查看网站 ↗</Link>
           <span className="avatar">HY</span>
         </div>
       </header>
@@ -180,7 +189,7 @@ export default function AdminPage() {
               <button className={activeLocale === 'en-US' ? 'active' : ''} onClick={() => switchLanguage('en-US')} type="button">English</button>
             </div>
             <div className="tree-scroll">
-              {['Overview', 'Android', 'iOS', 'Flutter', 'HarmonyOS'].map((platform) => {
+              {treePlatforms.map((platform) => {
                 const platformDocs = filteredDocs.filter((doc) => doc.platform === platform).sort((a, b) => a.order - b.order);
                 return (
                   <div className="tree-group" key={platform}>
@@ -242,7 +251,7 @@ export default function AdminPage() {
             <label>文档标题<input name="title" required placeholder="例如：设备连接" autoFocus /></label>
             <label>英文标题<input name="englishTitle" placeholder="例如：Device Connection" /></label>
             <div className="form-row">
-              <label>所属平台<select name="platform"><option>Android</option><option>iOS</option><option>Flutter</option><option>HarmonyOS</option></select></label>
+              <label>所属平台<select name="platform">{platforms.map((platform) => <option key={platform.id}>{platform.id}</option>)}</select></label>
               <label>文档地址<input name="slug" required placeholder="device-connection" /></label>
             </div>
             <label>简短描述<input name="description" placeholder="这篇文档主要介绍……" /></label>

@@ -2,7 +2,7 @@
 docId: ios-getting-started
 locale: en-US
 title: iOS Quick Start
-description: Install and initialize the Creek SDK in an iOS project.
+description: Initialize the iOS Creek SDK, then verify device authorization after a custom automatic connection.
 platform: iOS
 slug: ios/getting-started
 order: 1
@@ -12,26 +12,25 @@ version: v2.0
 
 # iOS Quick Start
 
-This guide explains how to integrate the Creek SDK into a Swift project.
+## Initialize the SDK
 
-## Requirements
+```swift
+CreekInterFace.instance.setupInit{
+    cancelAutoConnect:/// Automatic connection is enabled by default; .cancel disables it
+    CreekInterFace.instance.initSDK()
+}
+```
 
-- Xcode 16+
-- Swift 5.9+
-- iOS 12.0+
+## Verify Device Authorization
 
-## Install the SDK
+If you implement your own automatic connection flow, verify after connecting that the watch is not bound to another phone. If authorization fails, remove the device or rebind it according to your product flow.
 
-Add Creek SDK through Swift Package Manager.
-
-    .package(
-        url: "https://github.com/creek/creek-ios.git",
-        from: "2.0.0"
-    )
-
-## Initialize
-
-    Creek.initialize(
-        appId: "YOUR_APP_ID",
-        apiKey: "YOUR_API_KEY"
-    )
+```swift
+CreekInterFace.instance.authorizationVerificationDevice {
+    print("Succeeded")
+} failure: {
+    print("Failed")
+} authorizationFailure: {
+    print("Verification failed")
+}
+```

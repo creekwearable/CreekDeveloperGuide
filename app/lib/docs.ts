@@ -1,7 +1,17 @@
+export type DocLocale = 'zh-CN' | 'en-US';
+
+export type DocsNavigation = {
+  platforms: Array<{
+    id: string;
+    labels: Record<DocLocale, string>;
+    order: number;
+  }>;
+};
+
 export type DocRecord = {
   path: string;
   docId: string;
-  locale: 'zh-CN' | 'en-US';
+  locale: DocLocale;
   title: string;
   description: string;
   platform: string;
@@ -14,11 +24,20 @@ export type DocRecord = {
 
 function field(source: string, name: string) {
   const match = source.match(new RegExp('^' + name + ':\\s*(.+)$', 'm'));
-  return match?.[1]?.trim() ?? '';
+  const value = match?.[1]?.trim() ?? '';
+  if (value.length >= 2) {
+    const quote = value[0];
+    if ((quote === '"' || quote === "'") && value.at(-1) === quote) {
+      return value.slice(1, -1);
+    }
+  }
+  return value;
 }
 
 export function parseDoc(path: string, source: string): DocRecord {
   const localeFromPath = path.includes('/en-US/') ? 'en-US' : 'zh-CN';
+  const orderValue = field(source, 'order');
+  const parsedOrder = Number(orderValue);
   return {
     path,
     docId: field(source, 'docId') || field(source, 'slug') || path,
@@ -27,7 +46,7 @@ export function parseDoc(path: string, source: string): DocRecord {
     description: field(source, 'description'),
     platform: field(source, 'platform') || '概览',
     slug: field(source, 'slug') || path.replace(/^.*content\//, '').replace(/\.md$/, ''),
-    order: Number(field(source, 'order')) || 99,
+    order: orderValue && Number.isFinite(parsedOrder) ? parsedOrder : 99,
     status: field(source, 'status') === 'published' ? 'published' : 'draft',
     version: field(source, 'version') || 'v2.0',
     source,

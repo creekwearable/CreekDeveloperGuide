@@ -2,7 +2,7 @@
 docId: ios-getting-started
 locale: zh-CN
 title: iOS 快速开始
-description: 在 iOS 项目中安装并初始化 Creek SDK。
+description: 初始化 iOS Creek SDK，并在自定义自动连接后校验设备授权。
 platform: iOS
 slug: ios/getting-started
 order: 1
@@ -12,26 +12,25 @@ version: v2.0
 
 # iOS 快速开始
 
-本指南介绍如何在 Swift 项目中接入 Creek SDK。
+## 初始化 SDK
 
-## 环境要求
+```swift
+CreekInterFace.instance.setupInit{
+    cancelAutoConnect:///默认自动连接，.cancel 是取消自动连接
+    CreekInterFace.instance.initSDK()
+}
+```
 
-- Xcode 16+
-- Swift 5.9+
-- iOS 12.0+
+## 校验设备授权
 
-## 安装 SDK
+如果使用自己实现的自动连接逻辑，请在连接成功后校验手表是否已被其他手机绑定。校验失败时，需要根据产品逻辑删除该设备或重新绑定。
 
-通过 Swift Package Manager 添加 Creek SDK。
-
-    .package(
-        url: "https://github.com/creek/creek-ios.git",
-        from: "2.0.0"
-    )
-
-## 初始化
-
-    Creek.initialize(
-        appId: "YOUR_APP_ID",
-        apiKey: "YOUR_API_KEY"
-    )
+```swift
+CreekInterFace.instance.authorizationVerificationDevice {
+    print("成功")
+} failure: {
+    print("失败")
+} authorizationFailure: {
+    print("校验失败")
+}
+```
